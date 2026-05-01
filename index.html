@@ -210,12 +210,14 @@
     }
 
     // Simulación de búsqueda de partida (Fake Matchmaking)
-    function enterMatchmaking() {
+   function enterMatchmaking() {
         if (balance < betAmount) {
+            alert("❌ ¡No tienes saldo! Ve un video para conseguir monedas."); // <-- ESTO HACE QUE SALGA UN POP-UP
             document.getElementById('lobby-status').innerText = "❌ Saldo insuficiente para jugar.";
             document.getElementById('lobby-status').style.color = "var(--danger)";
             return;
         }
+// ... resto del código ...
 
         showScreen('view-matchmaking');
         document.getElementById('opponent-name').innerText = "";
