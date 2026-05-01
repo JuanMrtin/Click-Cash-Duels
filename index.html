@@ -3,121 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Click & Cash Duel</title>
+    <title>Click & Cash: Cyber Duels</title>
+    <!-- SDK de AdsGram -->
     <script src="https://sad.adsgram.ai/js/adsgram-ad-sdk.js"></script>
+    <!-- SDK de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --p-color: #000000; --s-color: #666666; --bg-color: #ffffff; --accent: #f0f0f0; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--p-color); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-        .card { background: #fff; width: 100%; max-width: 360px; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; border: 1px solid #eee; }
-        .balance-label { font-size: 0.75rem; text-transform: uppercase; color: var(--s-color); letter-spacing: 1px; }
-        .balance-value { font-size: 2.2rem; font-weight: 800; margin: 10px 0; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-black { background: var(--p-color); color: white; }
-        .btn-outline { background: white; border: 1.5px solid var(--p-color); color: var(--p-color); font-size: 1.2rem; }
-        .btn-outline:active { background: var(--accent); }
-        .status { font-size: 0.8rem; color: var(--s-color); margin-top: 10px; min-height: 1.2rem; }
-        .wheel { font-size: 2rem; transition: transform 2s cubic-bezier(0.1, 0.7, 0.1, 1); margin: 10px 0; }
+        /* Variables y diseño base */
+        :root {
+            --bg-main: #0a0e17;
+            --bg-card: #151b29;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #1e293b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
+
+        .app-container { width: 100%; max-width: 400px; height: 100vh; display: flex; flex-direction: column; position: relative; }
+
+        /* Pantallas (Vistas) */
+        .screen { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; width: 100%; animation: fadeIn 0.3s ease-in-out; }
+        .screen.active { display: flex; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Tarjetas y Contenedores */
+        .card { background: var(--bg-card); width: 100%; border-radius: 16px; padding: 24px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        
+        .balance-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .balance-value { font-size: 3rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); margin-bottom: 20px; }
+
+        /* Botones Profesionales */
+        .btn { width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--accent-blue); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: transparent; border: 2px solid var(--border); color: var(--text-main); margin-top: 10px; }
+        .btn-choice { background: var(--bg-main); border: 2px solid var(--border); font-size: 2.5rem; padding: 20px; border-radius: 16px; width: 100%; }
+        .btn-choice:active { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); }
+
+        /* Matchmaking Loader */
+        .loader { border: 4px solid var(--border); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .opponent-text { font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); margin-top: 15px; }
+
+        /* Grid del Juego */
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-top: 20px; }
+        
+        /* Notificaciones del sistema */
+        .status-bar { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); width: 100%; text-align: center; min-height: 40px; margin-top: auto; }
+        .log-error { color: var(--danger); font-size: 0.8rem; margin-top: 10px; }
+
+        /* Resultados de Batalla */
+        .battle-result { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin: 20px 0; width: 100%; }
+        .player-side { text-align: center; width: 40%; }
+        .vs-badge { font-weight: bold; color: var(--text-muted); font-style: italic; }
+        .emoji-lg { font-size: 3rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="balance-label">Saldo Acumulado</div>
-        <div class="balance-value" id="balance">0.000€</div>
-        <button class="btn-black" onclick="showAd()">💎 OBTENER MONEDAS (VIDEO)</button>
+<div class="app-container">
+
+    <!-- ================= VISTA 1: LOBBY PRINCIPAL ================= -->
+    <div id="view-lobby" class="screen active">
+        <div class="card">
+            <div class="balance-label">Monedero Virtual</div>
+            <div class="balance-value" id="ui-balance">0.000€</div>
+            
+            <button class="btn btn-primary" onclick="watchAd()" id="btn-ad">
+                📺 VER VIDEO (+0.010€)
+            </button>
+            <div id="ad-error" class="log-error"></div>
+        </div>
+
+        <div class="card" style="margin-top: 10px;">
+            <div class="balance-label">Zona de Batalla</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                Apuesta 0.005€ en duelos online.
+            </p>
+            <button class="btn btn-secondary" onclick="enterMatchmaking()">
+                ⚔️ BUSCAR PARTIDA ONLINE
+            </button>
+        </div>
+
+        <div class="status-bar" id="lobby-status">Sistema en línea. Esperando comandos.</div>
     </div>
 
-    <!-- MODO ONLINE (SIMULADO) -->
-    <div class="card">
-        <div class="balance-label">Piedra Papel Tijera (Online)</div>
-        <div style="font-size: 0.7rem; color: #999; margin-bottom: 10px;">Apuesta contra otros: 0.010€ | Gana: 0.018€</div>
-        <div class="grid">
-            <button class="btn-outline" onclick="playGame('🪨', 'pvp')">🪨</button>
-            <button class="btn-outline" onclick="playGame('📄', 'pvp')">📄</button>
-            <button class="btn-outline" onclick="playGame('✂️', 'pvp')">✂️</button>
+    <!-- ================= VISTA 2: MATCHMAKING ================= -->
+    <div id="view-matchmaking" class="screen">
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <h2>Buscando Oponente...</h2>
+            <p style="color: var(--text-muted); margin-top: 10px;">Conectando a los servidores...</p>
+            <div class="loader"></div>
+            <div id="opponent-name" class="opponent-text"></div>
         </div>
     </div>
 
-    <!-- MODO CPU (RETORNO 80%) -->
-    <div class="card">
-        <div class="balance-label">Duelo vs CPU (RTP 80%)</div>
-        <div style="font-size: 0.7rem; color: #999; margin-bottom: 10px;">Coste: 0.005€ | Gana: 0.008€</div>
-        <div class="grid">
-            <button class="btn-outline" onclick="playGame('🪨', 'cpu')">🪨</button>
-            <button class="btn-outline" onclick="playGame('📄', 'cpu')">📄</button>
-            <button class="btn-outline" onclick="playGame('✂️', 'cpu')">✂️</button>
+    <!-- ================= VISTA 3: SALA DE JUEGO ================= -->
+    <div id="view-game" class="screen">
+        <div class="card">
+            <div class="balance-label" style="color: var(--danger)">Modo Competitivo</div>
+            <p id="game-subtitle">Apuesta: 0.005€ | Premio: 0.008€</p>
+            
+            <!-- Zona de Batalla (Oculta hasta que elijas) -->
+            <div id="battle-arena" class="battle-result" style="display: none;">
+                <div class="player-side">
+                    <div style="font-size: 0.8rem; color: var(--accent-blue)">TÚ</div>
+                    <div class="emoji-lg" id="res-player">❓</div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="player-side">
+                    <div style="font-size: 0.8rem; color: var(--danger)" id="res-opp-name">RIVAL</div>
+                    <div class="emoji-lg" id="res-cpu">❓</div>
+                </div>
+            </div>
+
+            <!-- Botones de elección -->
+            <div id="action-grid" class="game-grid">
+                <button class="btn-choice" onclick="executeMove('🪨')">🪨</button>
+                <button class="btn-choice" onclick="executeMove('📄')">📄</button>
+                <button class="btn-choice" onclick="executeMove('✂️')">✂️</button>
+            </div>
+
+            <h3 id="round-result" style="margin-top: 20px; min-height: 25px;"></h3>
         </div>
+
+        <button class="btn btn-secondary" onclick="showScreen('view-lobby')">🚪 ABANDONAR SALA</button>
     </div>
 
-    <!-- RULETA -->
-    <div class="card">
-        <div class="balance-label">Ruleta Flash</div>
-        <div id="wheel" class="wheel">🎡</div>
-        <button class="btn-black" onclick="spinWheel()">GIRAR (0.005€)</button>
-    </div>
-
-    <div class="status" id="status">Bienvenido, @ClickCashDuelBot</div>
+</div>
 
 <script>
-    const AdController = window.Adsgram.init({ blockId: "TU_BLOCK_ID_AQUI" });
-    let balance = 0.00;
+    // Inicialización del SDK - ¡RECUERDA PONER TU BLOCK ID AQUÍ!
+    const AdController = window.Adsgram.init({ blockId: "TU_BLOCK_ID_AQUI" }); 
+    
+    let balance = 0.000;
+    let currentOpponent = "";
+    const betAmount = 0.005;
+    const winAmount = 0.008; // El sistema retiene el resto (RTP ajustado)
 
-    function updateUI() { document.getElementById('balance').innerText = balance.toFixed(3) + "€"; }
+    // Actualiza los textos de saldo en toda la app
+    function updateBalance() {
+        document.getElementById('ui-balance').innerText = balance.toFixed(3) + "€";
+    }
 
-    async function showAd() {
+    // Navegación entre pantallas
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        
+        // Resetear la interfaz del juego al salir
+        if(screenId === 'view-lobby') {
+            document.getElementById('battle-arena').style.display = 'none';
+            document.getElementById('action-grid').style.display = 'grid';
+            document.getElementById('round-result').innerText = "";
+            document.getElementById('ad-error').innerText = ""; // Limpiar errores pasados
+        }
+    }
+
+    // Lógica para ver el anuncio con gestión de errores real
+    async function watchAd() {
+        const btn = document.getElementById('btn-ad');
+        const errorLog = document.getElementById('ad-error');
+        const status = document.getElementById('lobby-status');
+        
+        btn.disabled = true;
+        btn.innerText = "⏳ CARGANDO ANUNCIO...";
+        errorLog.innerText = "";
+        status.innerText = "Solicitando video al servidor...";
+
         try {
             await AdController.show();
+            // Si llega aquí, el anuncio se vio con éxito
             balance += 0.010;
-            document.getElementById('status').innerText = "Anuncio completado: +0.010€";
-            updateUI();
-        } catch (e) { document.getElementById('status').innerText = "Debes ver el video completo."; }
+            updateBalance();
+            status.innerText = "¡Pago recibido! +0.010€";
+            status.style.color = "var(--success)";
+        } catch (error) {
+            // Si llega aquí, falló o lo cerraron
+            console.error("AdsGram Error:", error);
+            status.innerText = "Operación cancelada.";
+            status.style.color = "var(--text-muted)";
+            
+            // Diagnóstico del error
+            if (error && error.state === 'skip') {
+                errorLog.innerText = "Error: Has cerrado el video antes de tiempo.";
+            } else if (error && error.state === 'not_found' || error.error) {
+                errorLog.innerText = "AdsGram no tiene videos disponibles ahora mismo. Inténtalo en unos minutos.";
+            } else {
+                errorLog.innerText = "Revisa que tu BLOCK ID sea correcto en el código.";
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "📺 VER VIDEO (+0.010€)";
+            setTimeout(() => { status.style.color = "var(--text-muted)"; }, 3000);
+        }
     }
 
-    function playGame(user, type) {
-        const cost = type === 'pvp' ? 0.010 : 0.005;
-        const prize = type === 'pvp' ? 0.018 : 0.008; // El PvP tiene un margen del 10%, la CPU del 20% (RTP 80%)
+    // Simulación de búsqueda de partida (Fake Matchmaking)
+    function enterMatchmaking() {
+        if (balance < betAmount) {
+            document.getElementById('lobby-status').innerText = "❌ Saldo insuficiente para jugar.";
+            document.getElementById('lobby-status').style.color = "var(--danger)";
+            return;
+        }
 
-        if (balance < cost) { document.getElementById('status').innerText = "Saldo insuficiente."; return; }
+        showScreen('view-matchmaking');
+        document.getElementById('opponent-name').innerText = "";
         
-        balance -= cost;
-        const options = ['🪨', '📄', '✂️'];
-        const cpu = options[Math.floor(Math.random()*3)];
+        // Generar un nombre de jugador falso aleatorio
+        const names = ["Shadow_99", "CryptoKing", "Ninja_X", "Satoshi_Fan", "Player_772", "DarkKnight"];
+        currentOpponent = names[Math.floor(Math.random() * names.length)];
+
+        // Tiempos simulados para dar realismo
+        setTimeout(() => {
+            document.getElementById('opponent-name').innerText = "Rival encontrado: " + currentOpponent;
+        }, 1500);
+
+        setTimeout(() => {
+            document.getElementById('res-opp-name').innerText = currentOpponent.toUpperCase();
+            showScreen('view-game');
+        }, 3000);
+    }
+
+    // Lógica del juego con RTP adaptativo
+    function executeMove(playerChoice) {
+        if (balance < betAmount) {
+            alert("Te has quedado sin saldo.");
+            showScreen('view-lobby');
+            return;
+        }
+
+        // Cobrar apuesta
+        balance -= betAmount;
+        updateBalance();
+
+        // Ocultar botones y mostrar la batalla
+        document.getElementById('action-grid').style.display = 'none';
+        document.getElementById('battle-arena').style.display = 'flex';
+        document.getElementById('res-player').innerText = playerChoice;
+        document.getElementById('res-cpu').innerText = "⏱️";
+        document.getElementById('round-result').innerText = "El rival está eligiendo...";
+        document.getElementById('round-result').style.color = "var(--text-main)";
+
+        // Simular latencia de red del rival
+        setTimeout(() => {
+            const cpuChoice = calculateOpponentMove(playerChoice);
+            document.getElementById('res-cpu').innerText = cpuChoice;
+            resolveBattle(playerChoice, cpuChoice);
+        }, 1200);
+    }
+
+    // Lógica inteligente para asegurar rentabilidad (La casa gana más veces)
+    function calculateOpponentMove(player) {
+        const rand = Math.random();
         
-        let msg = "";
-        if (user === cpu) { 
-            balance += cost; 
-            msg = `Empate con ${cpu}. Saldo devuelto.`; 
-        } else if ((user==='🪨'&&cpu==='✂️')||(user==='📄'&&cpu==='🪨')||(user==='✂️'&&cpu==='📄')) {
-            balance += prize; 
-            msg = `¡Ganaste! ${user} vence a ${cpu}. +${prize}€`;
+        // 35% probabilidad de que gane el jugador, 35% empate, 30% pierde (Gasta saldo en empates/pérdidas)
+        let outcome = "";
+        if (rand < 0.35) outcome = "win";
+        else if (rand < 0.70) outcome = "lose";
+        else outcome = "tie";
+
+        const rules = {
+            '🪨': { win: '✂️', lose: '📄', tie: '🪨' },
+            '📄': { win: '🪨', lose: '✂️', tie: '📄' },
+            '✂️': { win: '📄', lose: '🪨', tie: '✂️' }
+        };
+
+        return rules[player][outcome];
+    }
+
+    // Resolver la partida
+    function resolveBattle(player, cpu) {
+        const resText = document.getElementById('round-result');
+        
+        if (player === cpu) {
+            balance += betAmount; // Devuelve la apuesta
+            resText.innerText = "¡EMPATE! Se devuelve la apuesta.";
+            resText.style.color = "var(--text-muted)";
+        } else if (
+            (player === '🪨' && cpu === '✂️') ||
+            (player === '📄' && cpu === '🪨') ||
+            (player === '✂️' && cpu === '📄')
+        ) {
+            balance += winAmount; // Gana el premio
+            resText.innerText = `¡VICTORIA! Has ganado ${winAmount}€`;
+            resText.style.color = "var(--success)";
         } else {
-            msg = `Perdiste. ${cpu} vence a ${user}.`;
+            resText.innerText = `¡DERROTA! Has perdido ${betAmount}€`;
+            resText.style.color = "var(--danger)";
         }
         
-        document.getElementById('status').innerText = msg;
-        updateUI();
-    }
+        updateBalance();
 
-    function spinWheel() {
-        if (balance < 0.005) return;
-        balance -= 0.005;
-        updateUI();
-
-        const items = ['❌', '💰', '❌', '💎', '❌', '💰'];
-        const result = items[Math.floor(Math.random()*items.length)];
-        
-        document.getElementById('wheel').innerText = "🎰";
+        // Restaurar botones después de 2.5 segundos para la siguiente ronda
         setTimeout(() => {
-            document.getElementById('wheel').innerText = result;
-            if (result === '💎') balance += 0.020;
-            else if (result === '💰') balance += 0.008;
-            updateUI();
-            document.getElementById('status').innerText = result === '❌' ? "Mala suerte." : "¡Premio en la ruleta!";
-        }, 1000);
+            document.getElementById('battle-arena').style.display = 'none';
+            document.getElementById('action-grid').style.display = 'grid';
+            resText.innerText = "";
+        }, 2500);
     }
 
+    // Inicializar la interfaz gráfica de Telegram
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
 </script>
