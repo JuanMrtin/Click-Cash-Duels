@@ -2,181 +2,124 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empire Clicker - Money Bot</title>
-    <!-- Fuente Gaming -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <!-- SDK de Telegram -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Click & Cash Duel</title>
+    <script src="https://sad.adsgram.ai/js/adsgram-ad-sdk.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- SDK de AdsGram (Publicidad) -->
-    <script src="https://adsgram.ai/sdk.js"></script>
-
     <style>
-        :root {
-            --neon-blue: #00d2ff;
-            --neon-purple: #9d50bb;
-            --bg-dark: #060b23;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px var(--neon-blue);
-        }
-
-        .balance-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
-            backdrop-filter: blur(10px);
-            margin-bottom: 30px;
-        }
-
-        .balance-amount {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--neon-blue);
-            margin: 10px 0;
-        }
-
-        .grid-games {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .game-card {
-            background: rgba(157, 80, 187, 0.1);
-            border: 1px solid var(--neon-purple);
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .game-card:active {
-            transform: scale(0.95);
-            background: rgba(157, 80, 187, 0.3);
-        }
-
-        .game-card h3 {
-            font-size: 0.9rem;
-            margin: 10px 0;
-        }
-
-        .btn-ad {
-            margin-top: 10px;
-            font-size: 0.7rem;
-            background: var(--neon-blue);
-            color: black;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .footer-status {
-            margin-top: 40px;
-            font-size: 0.8rem;
-            color: #666;
-        }
+        :root { --p-color: #000000; --s-color: #666666; --bg-color: #ffffff; --accent: #f0f0f0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--p-color); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px; }
+        .card { background: #fff; width: 100%; max-width: 360px; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; text-align: center; border: 1px solid #eee; }
+        .balance-label { font-size: 0.75rem; text-transform: uppercase; color: var(--s-color); letter-spacing: 1px; }
+        .balance-value { font-size: 2.2rem; font-weight: 800; margin: 10px 0; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-black { background: var(--p-color); color: white; }
+        .btn-outline { background: white; border: 1.5px solid var(--p-color); color: var(--p-color); font-size: 1.2rem; }
+        .btn-outline:active { background: var(--accent); }
+        .status { font-size: 0.8rem; color: var(--s-color); margin-top: 10px; min-height: 1.2rem; }
+        .wheel { font-size: 2rem; transition: transform 2s cubic-bezier(0.1, 0.7, 0.1, 1); margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>EMPIRE CLICKER</h1>
+    <div class="card">
+        <div class="balance-label">Saldo Acumulado</div>
+        <div class="balance-value" id="balance">0.000€</div>
+        <button class="btn-black" onclick="showAd()">💎 OBTENER MONEDAS (VIDEO)</button>
     </div>
 
-    <div class="balance-card">
-        <p>SALDO ACUMULADO</p>
-        <div class="balance-amount"><span id="user-balance">0.000</span>€</div>
-        <p style="font-size: 0.7rem; color: #888;">Mínimo de retiro: 10.00€</p>
-    </div>
-
-    <div class="grid-games">
-        <!-- RUEDA -->
-        <div class="game-card" onclick="runAd('wheel')">
-            <div style="font-size: 2rem;">🎡</div>
-            <h3>RULETA</h3>
-            <button class="btn-ad">VER VIDEO</button>
-        </div>
-        <!-- DUELO -->
-        <div class="game-card" onclick="runAd('duel')">
-            <div style="font-size: 2rem;">⚔️</div>
-            <h3>DUELO PvP</h3>
-            <button class="btn-ad">VER VIDEO</button>
-        </div>
-        <!-- MINA -->
-        <div class="game-card" onclick="runAd('mine')">
-            <div style="font-size: 2rem;">💎</div>
-            <h3>MINAR</h3>
-            <button class="btn-ad">VER VIDEO</button>
-        </div>
-        <!-- REGALO -->
-        <div class="game-card" onclick="runAd('gift')">
-            <div style="font-size: 2rem;">🎁</div>
-            <h3>BONO</h3>
-            <button class="btn-ad">VER VIDEO</button>
+    <!-- MODO ONLINE (SIMULADO) -->
+    <div class="card">
+        <div class="balance-label">Piedra Papel Tijera (Online)</div>
+        <div style="font-size: 0.7rem; color: #999; margin-bottom: 10px;">Apuesta contra otros: 0.010€ | Gana: 0.018€</div>
+        <div class="grid">
+            <button class="btn-outline" onclick="playGame('🪨', 'pvp')">🪨</button>
+            <button class="btn-outline" onclick="playGame('📄', 'pvp')">📄</button>
+            <button class="btn-outline" onclick="playGame('✂️', 'pvp')">✂️</button>
         </div>
     </div>
 
-    <div class="footer-status" id="status-msg">Esperando acción...</div>
+    <!-- MODO CPU (RETORNO 80%) -->
+    <div class="card">
+        <div class="balance-label">Duelo vs CPU (RTP 80%)</div>
+        <div style="font-size: 0.7rem; color: #999; margin-bottom: 10px;">Coste: 0.005€ | Gana: 0.008€</div>
+        <div class="grid">
+            <button class="btn-outline" onclick="playGame('🪨', 'cpu')">🪨</button>
+            <button class="btn-outline" onclick="playGame('📄', 'cpu')">📄</button>
+            <button class="btn-outline" onclick="playGame('✂️', 'cpu')">✂️</button>
+        </div>
+    </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Maximizar la app en Telegram
+    <!-- RULETA -->
+    <div class="card">
+        <div class="balance-label">Ruleta Flash</div>
+        <div id="wheel" class="wheel">🎡</div>
+        <button class="btn-black" onclick="spinWheel()">GIRAR (0.005€)</button>
+    </div>
 
-        // CONFIGURA AQUÍ TU ID DE ADSGRAM
-        const AdController = window.Adsgram.init({ blockId: "29177" });
+    <div class="status" id="status">Bienvenido, @ClickCashDuelBot</div>
 
-        let currentBalance = 0.000;
+<script>
+    const AdController = window.Adsgram.init({ blockId: "TU_BLOCK_ID_AQUI" });
+    let balance = 0.00;
 
-        async function runAd(type) {
-            const status = document.getElementById('status-msg');
-            status.innerText = "Cargando anuncio...";
+    function updateUI() { document.getElementById('balance').innerText = balance.toFixed(3) + "€"; }
 
-            try {
-                // LLAMADA AL ANUNCIO (Tú ganas dinero aquí)
-                await AdController.show();
-                
-                // Si el anuncio termina, damos la recompensa
-                status.innerText = "¡Anuncio completado! Procesando premio...";
-                
-                setTimeout(() => {
-                    let reward = 0.005; // 0.005€ por cada video visto
-                    currentBalance += reward;
-                    document.getElementById('user-balance').innerText = currentBalance.toFixed(3);
-                    status.innerText = "¡Recompensa añadida con éxito!";
-                    
-                    // Vibración háptica (solo en móviles)
-                    tg.HapticFeedback.notificationOccurred('success');
-                }, 1000);
+    async function showAd() {
+        try {
+            await AdController.show();
+            balance += 0.010;
+            document.getElementById('status').innerText = "Anuncio completado: +0.010€";
+            updateUI();
+        } catch (e) { document.getElementById('status').innerText = "Debes ver el video completo."; }
+    }
 
-            } catch (e) {
-                status.innerText = "Error: Debes ver el video completo.";
-                tg.HapticFeedback.notificationOccurred('error');
-            }
+    function playGame(user, type) {
+        const cost = type === 'pvp' ? 0.010 : 0.005;
+        const prize = type === 'pvp' ? 0.018 : 0.008; // El PvP tiene un margen del 10%, la CPU del 20% (RTP 80%)
+
+        if (balance < cost) { document.getElementById('status').innerText = "Saldo insuficiente."; return; }
+        
+        balance -= cost;
+        const options = ['🪨', '📄', '✂️'];
+        const cpu = options[Math.floor(Math.random()*3)];
+        
+        let msg = "";
+        if (user === cpu) { 
+            balance += cost; 
+            msg = `Empate con ${cpu}. Saldo devuelto.`; 
+        } else if ((user==='🪨'&&cpu==='✂️')||(user==='📄'&&cpu==='🪨')||(user==='✂️'&&cpu==='📄')) {
+            balance += prize; 
+            msg = `¡Ganaste! ${user} vence a ${cpu}. +${prize}€`;
+        } else {
+            msg = `Perdiste. ${cpu} vence a ${user}.`;
         }
-    </script>
+        
+        document.getElementById('status').innerText = msg;
+        updateUI();
+    }
+
+    function spinWheel() {
+        if (balance < 0.005) return;
+        balance -= 0.005;
+        updateUI();
+
+        const items = ['❌', '💰', '❌', '💎', '❌', '💰'];
+        const result = items[Math.floor(Math.random()*items.length)];
+        
+        document.getElementById('wheel').innerText = "🎰";
+        setTimeout(() => {
+            document.getElementById('wheel').innerText = result;
+            if (result === '💎') balance += 0.020;
+            else if (result === '💰') balance += 0.008;
+            updateUI();
+            document.getElementById('status').innerText = result === '❌' ? "Mala suerte." : "¡Premio en la ruleta!";
+        }, 1000);
+    }
+
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+</script>
 </body>
 </html>
