@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empire Clicker - Money Bot</title>
+    <!-- Fuente Gaming -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <!-- SDK de Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- SDK de AdsGram (Publicidad) -->
+    <script src="https://adsgram.ai/sdk.js"></script>
+
+    <style>
+        :root {
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d50bb;
+            --bg-dark: #060b23;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+            margin: 10px 0;
+        }
+
+        .grid-games {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: rgba(157, 80, 187, 0.1);
+            border: 1px solid var(--neon-purple);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .game-card:active {
+            transform: scale(0.95);
+            background: rgba(157, 80, 187, 0.3);
+        }
+
+        .game-card h3 {
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+
+        .btn-ad {
+            margin-top: 10px;
+            font-size: 0.7rem;
+            background: var(--neon-blue);
+            color: black;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .footer-status {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>EMPIRE CLICKER</h1>
+    </div>
+
+    <div class="balance-card">
+        <p>SALDO ACUMULADO</p>
+        <div class="balance-amount"><span id="user-balance">0.000</span>€</div>
+        <p style="font-size: 0.7rem; color: #888;">Mínimo de retiro: 10.00€</p>
+    </div>
+
+    <div class="grid-games">
+        <!-- RUEDA -->
+        <div class="game-card" onclick="runAd('wheel')">
+            <div style="font-size: 2rem;">🎡</div>
+            <h3>RULETA</h3>
+            <button class="btn-ad">VER VIDEO</button>
+        </div>
+        <!-- DUELO -->
+        <div class="game-card" onclick="runAd('duel')">
+            <div style="font-size: 2rem;">⚔️</div>
+            <h3>DUELO PvP</h3>
+            <button class="btn-ad">VER VIDEO</button>
+        </div>
+        <!-- MINA -->
+        <div class="game-card" onclick="runAd('mine')">
+            <div style="font-size: 2rem;">💎</div>
+            <h3>MINAR</h3>
+            <button class="btn-ad">VER VIDEO</button>
+        </div>
+        <!-- REGALO -->
+        <div class="game-card" onclick="runAd('gift')">
+            <div style="font-size: 2rem;">🎁</div>
+            <h3>BONO</h3>
+            <button class="btn-ad">VER VIDEO</button>
+        </div>
+    </div>
+
+    <div class="footer-status" id="status-msg">Esperando acción...</div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Maximizar la app en Telegram
+
+        // CONFIGURA AQUÍ TU ID DE ADSGRAM
+        const AdController = window.Adsgram.init({ blockId: "TU_BLOCK_ID_AQUI" });
+
+        let currentBalance = 0.000;
+
+        async function runAd(type) {
+            const status = document.getElementById('status-msg');
+            status.innerText = "Cargando anuncio...";
+
+            try {
+                // LLAMADA AL ANUNCIO (Tú ganas dinero aquí)
+                await AdController.show();
+                
+                // Si el anuncio termina, damos la recompensa
+                status.innerText = "¡Anuncio completado! Procesando premio...";
+                
+                setTimeout(() => {
+                    let reward = 0.005; // 0.005€ por cada video visto
+                    currentBalance += reward;
+                    document.getElementById('user-balance').innerText = currentBalance.toFixed(3);
+                    status.innerText = "¡Recompensa añadida con éxito!";
+                    
+                    // Vibración háptica (solo en móviles)
+                    tg.HapticFeedback.notificationOccurred('success');
+                }, 1000);
+
+            } catch (e) {
+                status.innerText = "Error: Debes ver el video completo.";
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
+    </script>
+</body>
+</html>
