@@ -9,297 +9,283 @@
     <!-- SDK de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Variables y diseño base Premium */
-        :root {
-            --bg-main: #090a0f;
-            --bg-card: #131722;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --accent-blue: #0ea5e9;
-            --accent-glow: rgba(14, 165, 233, 0.5);
-            --danger: #f43f5e;
-            --success: #10b981;
-            --border: #1e293b;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-
-        body { 
-            background: radial-gradient(circle at top, #1a2035, var(--bg-main)); 
-            color: var(--text-main); display: flex; justify-content: center; 
-            min-height: 100vh; overflow: hidden; 
-        }
-
-        .app-container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; position: relative; padding: 15px; }
-
-        /* Pantallas */
-        .screen { display: none; flex-direction: column; align-items: center; height: 100%; width: 100%; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .screen.active { display: flex; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Tarjetas */
-        .card { background: var(--bg-card); width: 100%; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; overflow: hidden; }
+        /* Diseño Premium y Funcional */
+        :root { --bg-main: #090a0f; --bg-card: #131722; --text-main: #f1f5f9; --text-muted: #94a3b8; --accent-blue: #0ea5e9; --danger: #f43f5e; --success: #10b981; --border: #1e293b; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; user-select: none; }
+        body { background: #090a0f; color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; padding: 15px; }
         
-        .balance-label { font-size: 0.8rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 5px; }
-        .balance-value { font-size: 3.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--accent-glow); margin-bottom: 15px; letter-spacing: -1px; }
-
-        /* Botones */
-        .btn { width: 100%; padding: 18px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; color: white; text-transform: uppercase; }
+        .screen { display: none; flex-direction: column; align-items: center; height: 100%; width: 100%; animation: slideUp 0.3s ease-out; }
+        .screen.active { display: flex; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: var(--bg-card); width: 100%; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 15px; }
+        .balance-label { font-size: 0.8rem; color: var(--accent-blue); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+        .balance-value { font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 15px; }
+        
+        .btn { width: 100%; padding: 16px; border-radius: 14px; font-size: 1rem; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; color: white; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:active { transform: scale(0.95); }
-        .btn-primary { background: linear-gradient(135deg, #0284c7, #0ea5e9); box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-primary:disabled { background: #334155; box-shadow: none; color: #94a3b8; cursor: not-allowed; }
-        .btn-secondary { background: transparent; border: 2px solid #334155; margin-top: 15px; color: var(--text-main); }
+        .btn-primary { background: linear-gradient(135deg, #0284c7, #0ea5e9); }
+        .btn-primary:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
+        .btn-bonus { background: linear-gradient(135deg, #8b5cf6, #d946ef); }
+        .btn-bonus:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
+        .btn-secondary { background: transparent; border: 2px solid #334155; margin-top: 10px; color: var(--text-main); }
         
         .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; margin-top: 25px; }
-        .btn-choice { background: #1e293b; border: 2px solid #334155; font-size: 2.8rem; padding: 20px 0; border-radius: 16px; width: 100%; cursor: pointer; transition: 0.2s; }
-        .btn-choice:active { border-color: var(--accent-blue); background: #0f172a; transform: scale(0.9); }
-
-        /* Notificaciones Toast */
-        #toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; white-space: nowrap; }
+        .btn-choice { background: #1e293b; border: 2px solid #334155; font-size: 2.8rem; padding: 20px 0; border-radius: 16px; width: 100%; cursor: pointer; transition: background-color 0.2s; }
+        .btn-choice:active { background: #0f172a; border-color: var(--accent-blue); }
+        .btn-choice:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 0.9rem; opacity: 0; transition: 0.3s; z-index: 1000; pointer-events: none; }
         #toast.show { opacity: 1; top: 40px; }
-
-        /* Matchmaking Loader */
-        .radar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent-blue); position: relative; margin: 40px auto; overflow: hidden; box-shadow: 0 0 20px var(--accent-glow); }
-        .radar::after { content: ''; position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; background: linear-gradient(45deg, rgba(14,165,233,0.8), transparent); transform-origin: 0 0; animation: scan 2s linear infinite; }
-        @keyframes scan { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Diagnóstico */
-        .debug-log { background: #000; color: #0f0; font-family: monospace; font-size: 0.75rem; padding: 10px; border-radius: 8px; text-align: left; margin-top: 10px; display: none; word-wrap: break-word; }
+        
+        .debug-log { background: #000; color: #f43f5e; font-size: 0.75rem; padding: 10px; border-radius: 8px; text-align: left; display: none; margin-bottom: 10px; font-family: monospace; word-wrap: break-word; }
+        .loader { border: 4px solid var(--border); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-
 <div class="app-container">
-    
-    <!-- Toast Notification (Reemplaza al alert) -->
     <div id="toast">Notificación</div>
 
-    <!-- ================= VISTA 1: LOBBY ================= -->
+    <!-- VISTA: LOBBY -->
     <div id="view-lobby" class="screen active">
         <div class="card">
             <div class="balance-label">Saldo Disponible</div>
             <div class="balance-value" id="ui-balance">0.000€</div>
             
-            <button class="btn btn-primary" onclick="watchAd()" id="btn-ad">
-                📺 OBTENER 0.010€
-            </button>
+            <button class="btn btn-primary" onclick="watchAd()" id="btn-ad">📺 OBTENER 0.010€ (VIDEO)</button>
             <div id="ad-error" class="debug-log"></div>
+            
+            <button class="btn btn-bonus" onclick="claimBonus()" id="btn-bonus">🎁 BONO GRATIS (Cada 1h)</button>
         </div>
 
         <div class="card" style="margin-top: auto;">
             <div class="balance-label" style="color: var(--danger)">Arena Competitiva</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 10px 0 20px;">
-                Entrada: 0.005€ | Victoria: 0.008€
-            </p>
-            <button class="btn btn-secondary" onclick="enterMatchmaking()">
-                ⚔️ BUSCAR RIVAL ONLINE
-            </button>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 5px 0 15px;">Entrada: 0.005€ | Premio: 0.008€</p>
+            <button class="btn btn-secondary" onclick="enterMatchmaking()">⚔️ BUSCAR RIVAL ONLINE</button>
         </div>
     </div>
 
-    <!-- ================= VISTA 2: MATCHMAKING ================= -->
+    <!-- VISTA: MATCHMAKING -->
     <div id="view-matchmaking" class="screen">
         <div class="card" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
             <h2 style="color: var(--accent-blue);">Buscando partida...</h2>
-            <div class="radar"></div>
+            <div class="loader"></div>
             <div id="opponent-name" style="font-size: 1.3rem; font-weight: bold; margin-top: 20px;"></div>
         </div>
     </div>
 
-    <!-- ================= VISTA 3: SALA DE JUEGO ================= -->
+    <!-- VISTA: JUEGO -->
     <div id="view-game" class="screen">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
-                <div style="text-align: center;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted)">TÚ</div>
-                    <div style="font-size: 2rem;" id="res-player">👤</div>
-                </div>
+                <div style="text-align: center;"><div style="font-size: 0.7rem; color: var(--text-muted)">TÚ</div><div style="font-size: 2rem;" id="res-player">👤</div></div>
                 <div style="font-weight: 900; color: var(--danger);">VS</div>
-                <div style="text-align: center;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted)" id="res-opp-name">RIVAL</div>
-                    <div style="font-size: 2rem;" id="res-cpu">👤</div>
-                </div>
+                <div style="text-align: center;"><div style="font-size: 0.7rem; color: var(--text-muted)" id="res-opp-name">RIVAL</div><div style="font-size: 2rem;" id="res-cpu">👤</div></div>
             </div>
-
             <h3 id="round-result" style="height: 30px; color: var(--text-muted);">Elige tu movimiento</h3>
-
             <div id="action-grid" class="game-grid">
-                <button class="btn-choice" onclick="executeMove('🪨')">🪨</button>
-                <button class="btn-choice" onclick="executeMove('📄')">📄</button>
-                <button class="btn-choice" onclick="executeMove('✂️')">✂️</button>
+                <button class="btn-choice" id="btn-rock" onclick="executeMove('🪨')">🪨</button>
+                <button class="btn-choice" id="btn-paper" onclick="executeMove('📄')">📄</button>
+                <button class="btn-choice" id="btn-scissors" onclick="executeMove('✂️')">✂️</button>
             </div>
         </div>
-
-        <button class="btn btn-secondary" style="margin-top: auto;" onclick="showScreen('view-lobby')">🚪 ABANDONAR SALA</button>
+        <button class="btn btn-secondary" style="margin-top: auto;" onclick="showScreen('view-lobby')" id="btn-leave">🚪 ABANDONAR SALA</button>
     </div>
-
 </div>
 
 <script>
-    // Inicialización de AdsGram
+    // Configuración inicial
     const AdController = window.Adsgram.init({ blockId: "29177" }); 
-    
-    let balance = 0.000;
-    const betAmount = 0.005;
-    const winAmount = 0.008;
+    let balance = parseFloat(localStorage.getItem("userBalance")) || 0.000;
+    const betAmount = 0.005, winAmount = 0.008;
+    let isPlaying = false; // Control de estado del juego
 
-    // Sistema de Notificaciones Elegantes
-    function showToast(message, color = "#fff", bgColor = "#000") {
-        const toast = document.getElementById('toast');
-        toast.innerText = message;
-        toast.style.color = color;
-        toast.style.background = bgColor;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+    function showToast(msg, color="#fff", bg="#000") {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.style.color = color; t.style.background = bg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // Actualiza UI
     function updateBalance() {
         document.getElementById('ui-balance').innerText = balance.toFixed(3) + "€";
+        localStorage.setItem("userBalance", balance);
     }
 
-    // Cambiar pantallas
-    function showScreen(screenId) {
+    function resetGameUI() {
+        document.getElementById('res-player').innerText = "👤";
+        document.getElementById('res-cpu').innerText = "👤";
+        document.getElementById('round-result').innerText = "Elige tu movimiento";
+        document.getElementById('round-result').style.color = "var(--text-muted)";
+        toggleGameButtons(false);
+    }
+
+    function toggleGameButtons(disable) {
+        document.getElementById('btn-rock').disabled = disable;
+        document.getElementById('btn-paper').disabled = disable;
+        document.getElementById('btn-scissors').disabled = disable;
+        document.getElementById('btn-leave').disabled = disable;
+    }
+
+    function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-        
-        if(screenId === 'view-lobby') {
-            document.getElementById('action-grid').style.pointerEvents = 'auto';
-            document.getElementById('action-grid').style.opacity = '1';
-            document.getElementById('res-player').innerText = "👤";
-            document.getElementById('res-cpu').innerText = "👤";
-            document.getElementById('round-result').innerText = "Elige tu movimiento";
-            document.getElementById('round-result').style.color = "var(--text-muted)";
-            document.getElementById('ad-error').style.display = 'none';
+        document.getElementById(id).classList.add('active');
+        if(id === 'view-lobby') {
+            checkBonusTimer();
+        } else if (id === 'view-game') {
+            resetGameUI();
+            isPlaying = false;
         }
     }
 
-    // LOGICA DE ADSGRAM MEJORADA CON DIAGNÓSTICO
+    // --- SISTEMA DE BONO ---
+    function checkBonusTimer() {
+        const lastClaim = localStorage.getItem("lastBonusTime");
+        const btn = document.getElementById('btn-bonus');
+        if (lastClaim) {
+            const timePassed = Date.now() - parseInt(lastClaim);
+            const cooldown = 3600000; 
+            if (timePassed < cooldown) {
+                const minsLeft = Math.ceil((cooldown - timePassed) / 60000);
+                btn.disabled = true;
+                btn.innerText = `⏳ BONO EN ${minsLeft} MIN`;
+                setTimeout(checkBonusTimer, 60000);
+                return;
+            }
+        }
+        btn.disabled = false;
+        btn.innerText = "🎁 RECLAMAR BONO (0.005€)";
+    }
+
+    function claimBonus() {
+        balance += 0.005;
+        localStorage.setItem("lastBonusTime", Date.now());
+        updateBalance();
+        showToast("¡Bono reclamado! +0.005€", "#000", "#10b981");
+        checkBonusTimer();
+    }
+
+    // --- ADSGRAM MEJORADO ---
     async function watchAd() {
         const btn = document.getElementById('btn-ad');
         const errorLog = document.getElementById('ad-error');
-        
-        btn.disabled = true;
-        btn.innerText = "⏳ CONECTANDO...";
+        btn.disabled = true; 
+        btn.innerText = "⏳ CARGANDO VIDEO...";
         errorLog.style.display = "none";
-
+        
         try {
             await AdController.show();
-            // EXITO
-            balance += 0.010;
+            balance += 0.010; 
             updateBalance();
-            showToast("¡+0.010€ añadidos a tu saldo!", "#000", "#10b981");
-        } catch (error) {
-            // ERROR CAPTURADO
-            showToast("Error al cargar el video.", "#fff", "#f43f5e");
-            
-            // Mostrar log técnico para saber qué pasa
+            showToast("¡Video completado! +0.010€", "#000", "#10b981");
+        } catch (err) {
+            showToast("No se pudo cargar el video.", "#fff", "#f43f5e");
             errorLog.style.display = "block";
-            if (error && error.description) {
-                errorLog.innerText = "Diagnóstico: " + error.description;
-            } else {
-                errorLog.innerText = "Diagnóstico: " + JSON.stringify(error);
+            // Extracción de error más robusta
+            let errorMsg = "Desconocido";
+            if (err && typeof err === 'object') {
+                if (err.description) errorMsg = err.description;
+                else if (err.error) errorMsg = err.error;
+                else errorMsg = JSON.stringify(err);
+            } else if (typeof err === 'string') {
+                errorMsg = err;
             }
-            console.log("AdsGram Completo:", error);
-
+            
+            if(errorMsg === "{}" || errorMsg === "") {
+                 errorLog.innerText = "Error: AdsGram rechazó la conexión. Comprueba que 'Test platform' está desactivado en AdsGram y limpia la caché de Telegram.";
+            } else {
+                 errorLog.innerText = "Error AdsGram: " + errorMsg;
+            }
         } finally {
-            // Reactivar botón después de 3 segundos para evitar spam
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerText = "📺 OBTENER 0.010€";
+            setTimeout(() => { 
+                btn.disabled = false; 
+                btn.innerText = "📺 OBTENER 0.010€ (VIDEO)"; 
             }, 3000);
         }
     }
 
-    // Búsqueda de partida
+    // --- LÓGICA DEL JUEGO REPARADA ---
     function enterMatchmaking() {
-        if (balance < betAmount) {
-            showToast("❌ No tienes 0.005€ para jugar. Ve un video.", "#fff", "#f43f5e");
-            return;
+        if (balance < betAmount) { 
+            showToast("❌ No tienes 0.005€. Reclama el bono o ve un video.", "#fff", "#f43f5e"); 
+            return; 
         }
-
         showScreen('view-matchmaking');
-        document.getElementById('opponent-name').innerText = "";
-        
-        const names = ["Shadow_99", "CryptoKing", "Player_772", "DarkKnight", "Neon_Samurai"];
+        const names = ["Shadow_99", "CryptoKing", "Player_772", "Neon_Samurai"];
         const rival = names[Math.floor(Math.random() * names.length)];
-
-        setTimeout(() => {
-            document.getElementById('opponent-name').innerText = rival;
+        
+        setTimeout(() => { 
+            document.getElementById('opponent-name').innerText = "Rival: " + rival; 
             document.getElementById('opponent-name').style.color = "var(--success)";
-        }, 2000);
-
-        setTimeout(() => {
-            document.getElementById('res-opp-name').innerText = rival.toUpperCase();
-            showScreen('view-game');
-        }, 3500);
+        }, 1500);
+        
+        setTimeout(() => { 
+            document.getElementById('res-opp-name').innerText = rival.toUpperCase(); 
+            showScreen('view-game'); 
+        }, 3000);
     }
 
-    // Lógica del juego
     function executeMove(playerChoice) {
-        if (balance < betAmount) {
-            showToast("Te has quedado sin fondos.", "#fff", "#f43f5e");
-            showScreen('view-lobby');
-            return;
+        if (isPlaying) return; // Prevenir múltiples clics
+        
+        if (balance < betAmount) { 
+            showToast("Sin fondos. Volviendo al lobby.", "#fff", "#f43f5e"); 
+            showScreen('view-lobby'); 
+            return; 
         }
-
-        balance -= betAmount;
+        
+        isPlaying = true;
+        balance -= betAmount; 
         updateBalance();
-
-        const grid = document.getElementById('action-grid');
-        grid.style.pointerEvents = 'none';
-        grid.style.opacity = '0.5';
-
+        
+        toggleGameButtons(true); // Desactivar botones mientras juega
+        
         document.getElementById('res-player').innerText = playerChoice;
         document.getElementById('res-cpu').innerText = "🤔";
-        document.getElementById('round-result').innerText = "El rival está pensando...";
+        document.getElementById('round-result').innerText = "El rival está decidiendo...";
         document.getElementById('round-result').style.color = "#fff";
-
+        
+        // Simular tiempo de respuesta
         setTimeout(() => {
-            const cpuChoice = calculateOpponentMove(playerChoice);
+            const rand = Math.random();
+            let outcome = rand < 0.35 ? "win" : rand < 0.70 ? "lose" : "tie";
+            const rules = { '🪨': { win: '✂️', lose: '📄', tie: '🪨' }, '📄': { win: '🪨', lose: '✂️', tie: '📄' }, '✂️': { win: '📄', lose: '🪨', tie: '✂️' } };
+            const cpuChoice = rules[playerChoice][outcome];
+            
             document.getElementById('res-cpu').innerText = cpuChoice;
-            resolveBattle(playerChoice, cpuChoice);
-        }, 1500);
+            const resText = document.getElementById('round-result');
+            
+            if (playerChoice === cpuChoice) { 
+                balance += betAmount; 
+                resText.innerText = "EMPATE (Se devuelve saldo)"; 
+                resText.style.color = "var(--accent-blue)";
+            } else if ((playerChoice === '🪨' && cpuChoice === '✂️') || (playerChoice === '📄' && cpuChoice === '🪨') || (playerChoice === '✂️' && cpuChoice === '📄')) {
+                balance += winAmount; 
+                resText.innerText = `¡GANASTE +${winAmount}€!`; 
+                resText.style.color = "var(--success)";
+            } else { 
+                resText.innerText = `PERDISTE -${betAmount}€`; 
+                resText.style.color = "var(--danger)"; 
+            }
+            
+            updateBalance();
+            
+            // Permitir jugar de nuevo sin salir de la sala
+            setTimeout(() => { 
+                resetGameUI();
+                isPlaying = false;
+            }, 2500); 
+            
+        }, 1200);
     }
 
-    function calculateOpponentMove(player) {
-        const rand = Math.random();
-        let outcome = rand < 0.35 ? "win" : rand < 0.70 ? "lose" : "tie";
-        const rules = { '🪨': { win: '✂️', lose: '📄', tie: '🪨' }, '📄': { win: '🪨', lose: '✂️', tie: '📄' }, '✂️': { win: '📄', lose: '🪨', tie: '✂️' } };
-        return rules[player][outcome];
-    }
-
-    function resolveBattle(player, cpu) {
-        const resText = document.getElementById('round-result');
-        
-        if (player === cpu) {
-            balance += betAmount; 
-            resText.innerText = "EMPATE (Devolución)";
-            resText.style.color = "var(--accent-blue)";
-        } else if ((player === '🪨' && cpu === '✂️') || (player === '📄' && cpu === '🪨') || (player === '✂️' && cpu === '📄')) {
-            balance += winAmount; 
-            resText.innerText = `¡GANASTE +${winAmount}€!`;
-            resText.style.color = "var(--success)";
-        } else {
-            resText.innerText = `PERDISTE -${betAmount}€`;
-            resText.style.color = "var(--danger)";
-        }
-        
-        updateBalance();
-
-        setTimeout(() => {
-            document.getElementById('action-grid').style.pointerEvents = 'auto';
-            document.getElementById('action-grid').style.opacity = '1';
-            resText.innerText = "Elige tu movimiento";
-            resText.style.color = "var(--text-muted)";
-            document.getElementById('res-player').innerText = "👤";
-            document.getElementById('res-cpu').innerText = "👤";
-        }, 2500);
-    }
-
+    // Inicializar WebApp
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
+    updateBalance();
+    checkBonusTimer();
 </script>
 </body>
 </html>
