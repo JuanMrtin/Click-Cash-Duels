@@ -9,313 +9,295 @@
     <!-- SDK de Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Variables y diseño base */
+        /* Variables y diseño base Premium */
         :root {
-            --bg-main: #0a0e17;
-            --bg-card: #151b29;
-            --text-main: #e2e8f0;
-            --text-muted: #64748b;
-            --accent-blue: #3b82f6;
-            --accent-hover: #2563eb;
-            --danger: #ef4444;
+            --bg-main: #090a0f;
+            --bg-card: #131722;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-blue: #0ea5e9;
+            --accent-glow: rgba(14, 165, 233, 0.5);
+            --danger: #f43f5e;
             --success: #10b981;
             --border: #1e293b;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
+        body { 
+            background: radial-gradient(circle at top, #1a2035, var(--bg-main)); 
+            color: var(--text-main); display: flex; justify-content: center; 
+            min-height: 100vh; overflow: hidden; 
+        }
 
-        .app-container { width: 100%; max-width: 400px; height: 100vh; display: flex; flex-direction: column; position: relative; }
+        .app-container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; position: relative; padding: 15px; }
 
-        /* Pantallas (Vistas) */
-        .screen { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; width: 100%; animation: fadeIn 0.3s ease-in-out; }
+        /* Pantallas */
+        .screen { display: none; flex-direction: column; align-items: center; height: 100%; width: 100%; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: flex; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Tarjetas y Contenedores */
-        .card { background: var(--bg-card); width: 100%; border-radius: 16px; padding: 24px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        /* Tarjetas */
+        .card { background: var(--bg-card); width: 100%; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; position: relative; overflow: hidden; }
         
-        .balance-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
-        .balance-value { font-size: 3rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); margin-bottom: 20px; }
+        .balance-label { font-size: 0.8rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 5px; }
+        .balance-value { font-size: 3.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--accent-glow); margin-bottom: 15px; letter-spacing: -1px; }
 
-        /* Botones Profesionales */
-        .btn { width: 100%; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: var(--accent-blue); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-secondary { background: transparent; border: 2px solid var(--border); color: var(--text-main); margin-top: 10px; }
-        .btn-choice { background: var(--bg-main); border: 2px solid var(--border); font-size: 2.5rem; padding: 20px; border-radius: 16px; width: 100%; }
-        .btn-choice:active { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); }
+        /* Botones */
+        .btn { width: 100%; padding: 18px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; color: white; text-transform: uppercase; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: linear-gradient(135deg, #0284c7, #0ea5e9); box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-primary:disabled { background: #334155; box-shadow: none; color: #94a3b8; cursor: not-allowed; }
+        .btn-secondary { background: transparent; border: 2px solid #334155; margin-top: 15px; color: var(--text-main); }
+        
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; margin-top: 25px; }
+        .btn-choice { background: #1e293b; border: 2px solid #334155; font-size: 2.8rem; padding: 20px 0; border-radius: 16px; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn-choice:active { border-color: var(--accent-blue); background: #0f172a; transform: scale(0.9); }
+
+        /* Notificaciones Toast */
+        #toast { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; white-space: nowrap; }
+        #toast.show { opacity: 1; top: 40px; }
 
         /* Matchmaking Loader */
-        .loader { border: 4px solid var(--border); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .opponent-text { font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); margin-top: 15px; }
+        .radar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent-blue); position: relative; margin: 40px auto; overflow: hidden; box-shadow: 0 0 20px var(--accent-glow); }
+        .radar::after { content: ''; position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; background: linear-gradient(45deg, rgba(14,165,233,0.8), transparent); transform-origin: 0 0; animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Grid del Juego */
-        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-top: 20px; }
-        
-        /* Notificaciones del sistema */
-        .status-bar { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); width: 100%; text-align: center; min-height: 40px; margin-top: auto; }
-        .log-error { color: var(--danger); font-size: 0.8rem; margin-top: 10px; }
-
-        /* Resultados de Batalla */
-        .battle-result { display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin: 20px 0; width: 100%; }
-        .player-side { text-align: center; width: 40%; }
-        .vs-badge { font-weight: bold; color: var(--text-muted); font-style: italic; }
-        .emoji-lg { font-size: 3rem; margin-top: 10px; }
+        /* Diagnóstico */
+        .debug-log { background: #000; color: #0f0; font-family: monospace; font-size: 0.75rem; padding: 10px; border-radius: 8px; text-align: left; margin-top: 10px; display: none; word-wrap: break-word; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+    
+    <!-- Toast Notification (Reemplaza al alert) -->
+    <div id="toast">Notificación</div>
 
-    <!-- ================= VISTA 1: LOBBY PRINCIPAL ================= -->
+    <!-- ================= VISTA 1: LOBBY ================= -->
     <div id="view-lobby" class="screen active">
         <div class="card">
-            <div class="balance-label">Monedero Virtual</div>
+            <div class="balance-label">Saldo Disponible</div>
             <div class="balance-value" id="ui-balance">0.000€</div>
             
             <button class="btn btn-primary" onclick="watchAd()" id="btn-ad">
-                📺 VER VIDEO (+0.010€)
+                📺 OBTENER 0.010€
             </button>
-            <div id="ad-error" class="log-error"></div>
+            <div id="ad-error" class="debug-log"></div>
         </div>
 
-        <div class="card" style="margin-top: 10px;">
-            <div class="balance-label">Zona de Batalla</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-                Apuesta 0.005€ en duelos online.
+        <div class="card" style="margin-top: auto;">
+            <div class="balance-label" style="color: var(--danger)">Arena Competitiva</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 10px 0 20px;">
+                Entrada: 0.005€ | Victoria: 0.008€
             </p>
             <button class="btn btn-secondary" onclick="enterMatchmaking()">
-                ⚔️ BUSCAR PARTIDA ONLINE
+                ⚔️ BUSCAR RIVAL ONLINE
             </button>
         </div>
-
-        <div class="status-bar" id="lobby-status">Sistema en línea. Esperando comandos.</div>
     </div>
 
     <!-- ================= VISTA 2: MATCHMAKING ================= -->
     <div id="view-matchmaking" class="screen">
         <div class="card" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-            <h2>Buscando Oponente...</h2>
-            <p style="color: var(--text-muted); margin-top: 10px;">Conectando a los servidores...</p>
-            <div class="loader"></div>
-            <div id="opponent-name" class="opponent-text"></div>
+            <h2 style="color: var(--accent-blue);">Buscando partida...</h2>
+            <div class="radar"></div>
+            <div id="opponent-name" style="font-size: 1.3rem; font-weight: bold; margin-top: 20px;"></div>
         </div>
     </div>
 
     <!-- ================= VISTA 3: SALA DE JUEGO ================= -->
     <div id="view-game" class="screen">
         <div class="card">
-            <div class="balance-label" style="color: var(--danger)">Modo Competitivo</div>
-            <p id="game-subtitle">Apuesta: 0.005€ | Premio: 0.008€</p>
-            
-            <!-- Zona de Batalla (Oculta hasta que elijas) -->
-            <div id="battle-arena" class="battle-result" style="display: none;">
-                <div class="player-side">
-                    <div style="font-size: 0.8rem; color: var(--accent-blue)">TÚ</div>
-                    <div class="emoji-lg" id="res-player">❓</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted)">TÚ</div>
+                    <div style="font-size: 2rem;" id="res-player">👤</div>
                 </div>
-                <div class="vs-badge">VS</div>
-                <div class="player-side">
-                    <div style="font-size: 0.8rem; color: var(--danger)" id="res-opp-name">RIVAL</div>
-                    <div class="emoji-lg" id="res-cpu">❓</div>
+                <div style="font-weight: 900; color: var(--danger);">VS</div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted)" id="res-opp-name">RIVAL</div>
+                    <div style="font-size: 2rem;" id="res-cpu">👤</div>
                 </div>
             </div>
 
-            <!-- Botones de elección -->
+            <h3 id="round-result" style="height: 30px; color: var(--text-muted);">Elige tu movimiento</h3>
+
             <div id="action-grid" class="game-grid">
                 <button class="btn-choice" onclick="executeMove('🪨')">🪨</button>
                 <button class="btn-choice" onclick="executeMove('📄')">📄</button>
                 <button class="btn-choice" onclick="executeMove('✂️')">✂️</button>
             </div>
-
-            <h3 id="round-result" style="margin-top: 20px; min-height: 25px;"></h3>
         </div>
 
-        <button class="btn btn-secondary" onclick="showScreen('view-lobby')">🚪 ABANDONAR SALA</button>
+        <button class="btn btn-secondary" style="margin-top: auto;" onclick="showScreen('view-lobby')">🚪 ABANDONAR SALA</button>
     </div>
 
 </div>
 
 <script>
-    // Inicialización del SDK - ¡RECUERDA PONER TU BLOCK ID AQUÍ!
+    // Inicialización de AdsGram
     const AdController = window.Adsgram.init({ blockId: "29177" }); 
     
     let balance = 0.000;
-    let currentOpponent = "";
     const betAmount = 0.005;
-    const winAmount = 0.008; // El sistema retiene el resto (RTP ajustado)
+    const winAmount = 0.008;
 
-    // Actualiza los textos de saldo en toda la app
+    // Sistema de Notificaciones Elegantes
+    function showToast(message, color = "#fff", bgColor = "#000") {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.style.color = color;
+        toast.style.background = bgColor;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Actualiza UI
     function updateBalance() {
         document.getElementById('ui-balance').innerText = balance.toFixed(3) + "€";
     }
 
-    // Navegación entre pantallas
+    // Cambiar pantallas
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
         
-        // Resetear la interfaz del juego al salir
         if(screenId === 'view-lobby') {
-            document.getElementById('battle-arena').style.display = 'none';
-            document.getElementById('action-grid').style.display = 'grid';
-            document.getElementById('round-result').innerText = "";
-            document.getElementById('ad-error').innerText = ""; // Limpiar errores pasados
+            document.getElementById('action-grid').style.pointerEvents = 'auto';
+            document.getElementById('action-grid').style.opacity = '1';
+            document.getElementById('res-player').innerText = "👤";
+            document.getElementById('res-cpu').innerText = "👤";
+            document.getElementById('round-result').innerText = "Elige tu movimiento";
+            document.getElementById('round-result').style.color = "var(--text-muted)";
+            document.getElementById('ad-error').style.display = 'none';
         }
     }
 
-    // Lógica para ver el anuncio con gestión de errores real
+    // LOGICA DE ADSGRAM MEJORADA CON DIAGNÓSTICO
     async function watchAd() {
         const btn = document.getElementById('btn-ad');
         const errorLog = document.getElementById('ad-error');
-        const status = document.getElementById('lobby-status');
         
         btn.disabled = true;
-        btn.innerText = "⏳ CARGANDO ANUNCIO...";
-        errorLog.innerText = "";
-        status.innerText = "Solicitando video al servidor...";
+        btn.innerText = "⏳ CONECTANDO...";
+        errorLog.style.display = "none";
 
         try {
             await AdController.show();
-            // Si llega aquí, el anuncio se vio con éxito
+            // EXITO
             balance += 0.010;
             updateBalance();
-            status.innerText = "¡Pago recibido! +0.010€";
-            status.style.color = "var(--success)";
+            showToast("¡+0.010€ añadidos a tu saldo!", "#000", "#10b981");
         } catch (error) {
-            // Si llega aquí, falló o lo cerraron
-            console.error("AdsGram Error:", error);
-            status.innerText = "Operación cancelada.";
-            status.style.color = "var(--text-muted)";
+            // ERROR CAPTURADO
+            showToast("Error al cargar el video.", "#fff", "#f43f5e");
             
-            // Diagnóstico del error
-            if (error && error.state === 'skip') {
-                errorLog.innerText = "Error: Has cerrado el video antes de tiempo.";
-            } else if (error && error.state === 'not_found' || error.error) {
-                errorLog.innerText = "AdsGram no tiene videos disponibles ahora mismo. Inténtalo en unos minutos.";
+            // Mostrar log técnico para saber qué pasa
+            errorLog.style.display = "block";
+            if (error && error.description) {
+                errorLog.innerText = "Diagnóstico: " + error.description;
             } else {
-                errorLog.innerText = "Revisa que tu BLOCK ID sea correcto en el código.";
+                errorLog.innerText = "Diagnóstico: " + JSON.stringify(error);
             }
+            console.log("AdsGram Completo:", error);
+
         } finally {
-            btn.disabled = false;
-            btn.innerText = "📺 VER VIDEO (+0.010€)";
-            setTimeout(() => { status.style.color = "var(--text-muted)"; }, 3000);
+            // Reactivar botón después de 3 segundos para evitar spam
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerText = "📺 OBTENER 0.010€";
+            }, 3000);
         }
     }
 
-    // Simulación de búsqueda de partida (Fake Matchmaking)
-   function enterMatchmaking() {
+    // Búsqueda de partida
+    function enterMatchmaking() {
         if (balance < betAmount) {
-            alert("❌ ¡No tienes saldo! Ve un video para conseguir monedas."); // <-- ESTO HACE QUE SALGA UN POP-UP
-            document.getElementById('lobby-status').innerText = "❌ Saldo insuficiente para jugar.";
-            document.getElementById('lobby-status').style.color = "var(--danger)";
+            showToast("❌ No tienes 0.005€ para jugar. Ve un video.", "#fff", "#f43f5e");
             return;
         }
-// ... resto del código ...
 
         showScreen('view-matchmaking');
         document.getElementById('opponent-name').innerText = "";
         
-        // Generar un nombre de jugador falso aleatorio
-        const names = ["Shadow_99", "CryptoKing", "Ninja_X", "Satoshi_Fan", "Player_772", "DarkKnight"];
-        currentOpponent = names[Math.floor(Math.random() * names.length)];
-
-        // Tiempos simulados para dar realismo
-        setTimeout(() => {
-            document.getElementById('opponent-name').innerText = "Rival encontrado: " + currentOpponent;
-        }, 1500);
+        const names = ["Shadow_99", "CryptoKing", "Player_772", "DarkKnight", "Neon_Samurai"];
+        const rival = names[Math.floor(Math.random() * names.length)];
 
         setTimeout(() => {
-            document.getElementById('res-opp-name').innerText = currentOpponent.toUpperCase();
+            document.getElementById('opponent-name').innerText = rival;
+            document.getElementById('opponent-name').style.color = "var(--success)";
+        }, 2000);
+
+        setTimeout(() => {
+            document.getElementById('res-opp-name').innerText = rival.toUpperCase();
             showScreen('view-game');
-        }, 3000);
+        }, 3500);
     }
 
-    // Lógica del juego con RTP adaptativo
+    // Lógica del juego
     function executeMove(playerChoice) {
         if (balance < betAmount) {
-            alert("Te has quedado sin saldo.");
+            showToast("Te has quedado sin fondos.", "#fff", "#f43f5e");
             showScreen('view-lobby');
             return;
         }
 
-        // Cobrar apuesta
         balance -= betAmount;
         updateBalance();
 
-        // Ocultar botones y mostrar la batalla
-        document.getElementById('action-grid').style.display = 'none';
-        document.getElementById('battle-arena').style.display = 'flex';
-        document.getElementById('res-player').innerText = playerChoice;
-        document.getElementById('res-cpu').innerText = "⏱️";
-        document.getElementById('round-result').innerText = "El rival está eligiendo...";
-        document.getElementById('round-result').style.color = "var(--text-main)";
+        const grid = document.getElementById('action-grid');
+        grid.style.pointerEvents = 'none';
+        grid.style.opacity = '0.5';
 
-        // Simular latencia de red del rival
+        document.getElementById('res-player').innerText = playerChoice;
+        document.getElementById('res-cpu').innerText = "🤔";
+        document.getElementById('round-result').innerText = "El rival está pensando...";
+        document.getElementById('round-result').style.color = "#fff";
+
         setTimeout(() => {
             const cpuChoice = calculateOpponentMove(playerChoice);
             document.getElementById('res-cpu').innerText = cpuChoice;
             resolveBattle(playerChoice, cpuChoice);
-        }, 1200);
+        }, 1500);
     }
 
-    // Lógica inteligente para asegurar rentabilidad (La casa gana más veces)
     function calculateOpponentMove(player) {
         const rand = Math.random();
-        
-        // 35% probabilidad de que gane el jugador, 35% empate, 30% pierde (Gasta saldo en empates/pérdidas)
-        let outcome = "";
-        if (rand < 0.35) outcome = "win";
-        else if (rand < 0.70) outcome = "lose";
-        else outcome = "tie";
-
-        const rules = {
-            '🪨': { win: '✂️', lose: '📄', tie: '🪨' },
-            '📄': { win: '🪨', lose: '✂️', tie: '📄' },
-            '✂️': { win: '📄', lose: '🪨', tie: '✂️' }
-        };
-
+        let outcome = rand < 0.35 ? "win" : rand < 0.70 ? "lose" : "tie";
+        const rules = { '🪨': { win: '✂️', lose: '📄', tie: '🪨' }, '📄': { win: '🪨', lose: '✂️', tie: '📄' }, '✂️': { win: '📄', lose: '🪨', tie: '✂️' } };
         return rules[player][outcome];
     }
 
-    // Resolver la partida
     function resolveBattle(player, cpu) {
         const resText = document.getElementById('round-result');
         
         if (player === cpu) {
-            balance += betAmount; // Devuelve la apuesta
-            resText.innerText = "¡EMPATE! Se devuelve la apuesta.";
-            resText.style.color = "var(--text-muted)";
-        } else if (
-            (player === '🪨' && cpu === '✂️') ||
-            (player === '📄' && cpu === '🪨') ||
-            (player === '✂️' && cpu === '📄')
-        ) {
-            balance += winAmount; // Gana el premio
-            resText.innerText = `¡VICTORIA! Has ganado ${winAmount}€`;
+            balance += betAmount; 
+            resText.innerText = "EMPATE (Devolución)";
+            resText.style.color = "var(--accent-blue)";
+        } else if ((player === '🪨' && cpu === '✂️') || (player === '📄' && cpu === '🪨') || (player === '✂️' && cpu === '📄')) {
+            balance += winAmount; 
+            resText.innerText = `¡GANASTE +${winAmount}€!`;
             resText.style.color = "var(--success)";
         } else {
-            resText.innerText = `¡DERROTA! Has perdido ${betAmount}€`;
+            resText.innerText = `PERDISTE -${betAmount}€`;
             resText.style.color = "var(--danger)";
         }
         
         updateBalance();
 
-        // Restaurar botones después de 2.5 segundos para la siguiente ronda
         setTimeout(() => {
-            document.getElementById('battle-arena').style.display = 'none';
-            document.getElementById('action-grid').style.display = 'grid';
-            resText.innerText = "";
+            document.getElementById('action-grid').style.pointerEvents = 'auto';
+            document.getElementById('action-grid').style.opacity = '1';
+            resText.innerText = "Elige tu movimiento";
+            resText.style.color = "var(--text-muted)";
+            document.getElementById('res-player').innerText = "👤";
+            document.getElementById('res-cpu').innerText = "👤";
         }, 2500);
     }
 
-    // Inicializar la interfaz gráfica de Telegram
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
 </script>
